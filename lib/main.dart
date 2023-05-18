@@ -12,7 +12,6 @@ void main() async {
   // Plugin must be initialized before using
   await FlutterDownloader.initialize(
     debug: true,
-    ignoreSsl: true,
   );
   runApp(const MyApp());
 }
@@ -43,11 +42,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int progress = 0;
+  int folderCounter = 0; // New variable to keep track of folder count
 
   void _downloadFiles() async {
-    final savedDir = (await getTemporaryDirectory()).path;
+    final baseDir = (await getTemporaryDirectory()).path;
+    final folderName = 'folder_${folderCounter++}'; // Increment folder count
+    final savedDir = '$baseDir/$folderName';
     const fileName = 'filename.zip';
     final filePath = '$savedDir/$fileName';
+
+    // Create the directory if it doesn't exist
+    if (!Directory(savedDir).existsSync()) {
+      Directory(savedDir).createSync(recursive: true);
+    }
 
     // Check if the file already exists
     final file = File(filePath);
@@ -56,13 +63,16 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
 
-    final id = await FlutterDownloader.enqueue(
+    final taskId = await FlutterDownloader.enqueue(
       url:
-          'https://s3-ap-southeast-1.amazonaws.com/tnl-public/interactions/sanitized_assets/staging/1576.zip?1626696053',
+          'https://s3-ap-southeast-1.amazonaws.com/tnl-public/interactions/sanitized_assets/staging/1577.zip?1626696053',
       savedDir: savedDir,
       fileName: fileName,
     );
     print(savedDir);
+    print('Download task ID: $taskId'); // Added print statement
+
+    // Open the downloaded file
   }
 
   ReceivePort receivePort = ReceivePort();
@@ -82,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   static downloadCallback(id, status, progress) async {
     SendPort? sendPort = IsolateNameServer.lookupPortByName('downloadingId');
-    sendPort!.send(progress);
+    sendPort?.send(progress);
 
     if (status == DownloadTaskStatus.complete) {
       final savedDir = (await getTemporaryDirectory()).path;
@@ -102,13 +112,13 @@ class _MyHomePageState extends State<MyHomePage> {
             outputFile.writeAsBytesSync(file.content as List<int>);
           } else {
             final directoryPath = '$unzipDirectory/$fileName';
-            Directory(directoryPath).create(recursive: true);
+            Directory(directoryPath).createSync(recursive: true);
           }
         }
         print('File unzipped successfully');
 
         // Remove the zip file
-        File(zipFilePath).delete();
+        File(zipFilePath).deleteSync();
 
         // Rename the unzipped directory to the desired name
         final newDirectoryName = '$savedDir/unzipfile';
@@ -135,8 +145,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               '$progress',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+              style: Theme.of(context).textTheme.titleLarge,
+            ), // Changed headlineMedium to headline6
           ],
         ),
       ),
