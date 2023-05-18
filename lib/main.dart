@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:archive/archive.dart';
 
 void main() async {
@@ -46,22 +45,24 @@ class _MyHomePageState extends State<MyHomePage> {
   int progress = 0;
 
   void _downloadFiles() async {
-    final status = await Permission.storage.request();
-    if (status.isGranted) {
-      final baseStorage = await getExternalStorageDirectory();
-      print(baseStorage.toString());
-      final savedDir = baseStorage!.path;
-      const fileName = 'filename.zip';
-      final id = await FlutterDownloader.enqueue(
-        url:
-            'https://s3-ap-southeast-1.amazonaws.com/tnl-public/interactions/sanitized_assets/staging/1577.zip?1626696053',
-        savedDir: savedDir,
-        fileName: fileName,
-      );
-      print(baseStorage.path.toString());
-    } else {
-      print('Permission is not granted');
+    final savedDir = (await getTemporaryDirectory()).path;
+    const fileName = 'filename.zip';
+    final filePath = '$savedDir/$fileName';
+
+    // Check if the file already exists
+    final file = File(filePath);
+    if (file.existsSync()) {
+      print('File already downloaded');
+      return;
     }
+
+    final id = await FlutterDownloader.enqueue(
+      url:
+          'https://s3-ap-southeast-1.amazonaws.com/tnl-public/interactions/sanitized_assets/staging/1576.zip?1626696053',
+      savedDir: savedDir,
+      fileName: fileName,
+    );
+    print(savedDir);
   }
 
   ReceivePort receivePort = ReceivePort();
@@ -84,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
     sendPort!.send(progress);
 
     if (status == DownloadTaskStatus.complete) {
-      final savedDir = (await getExternalStorageDirectory())!.path;
+      final savedDir = (await getTemporaryDirectory()).path;
       final zipFilePath = '$savedDir/filename.zip';
       final unzipDirectory = Directory('$savedDir/unzipfile');
 
@@ -134,14 +135,14 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               '$progress',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _downloadFiles,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.download),
       ),
     );
   }
