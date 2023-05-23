@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:archive/archive.dart';
+import 'package:poc/webview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,7 +45,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int progress = 0;
   int folderCounter = 0; // New variable to keep track of folder count
   int status = 9;
-
   // ...
 
   void _downloadFiles() async {
@@ -125,6 +125,10 @@ class _MyHomePageState extends State<MyHomePage> {
           if (file.isFile) {
             final filePath = '$unzipDirectory/$fileName';
             final outputFile = File(filePath);
+            if (fileName.endsWith('.html')) {
+              // Check if the file has .html extension
+              print('HTML path: $filePath');
+            }
             outputFile.createSync(recursive: true);
             outputFile.writeAsBytesSync(file.content as List<int>);
           } else {
@@ -167,7 +171,17 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$progress',
               style: Theme.of(context).textTheme.titleLarge,
-            ), // Changed headlineMedium to headline6
+            ),
+            IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ExtractArgumentsScreen()),
+                  );
+                },
+                icon: const Icon(
+                    Icons.account_box)) // Changed headlineMedium to headline6
           ],
         ),
       ),
