@@ -6,35 +6,32 @@ class ExtractArgumentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const args =
-        'file:///data/user/0/com.example.poc/cache/folder/unzipfile/interaction-1577-assets/index.html';
-
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
       ),
       body: WebViewWidget(
-          controller: WebViewController()
-            ..setJavaScriptMode(JavaScriptMode.unrestricted)
-            ..setBackgroundColor(const Color(0x00000000))
-            ..setNavigationDelegate(
-              NavigationDelegate(
-                onProgress: (int progress) {},
-                onPageStarted: (String url) {},
-                onPageFinished: (String url) {},
-                onWebResourceError: (WebResourceError error) {},
-                onNavigationRequest: (NavigationRequest request) {
-                  return NavigationDecision.navigate;
-                },
-              ),
-            )
-            ..loadRequest(Uri.parse(args))),
+        controller: WebViewController()
+          ..loadFile(
+              'file:///data/user/0/com.example.poc/cache/folder/unzipfile/interaction-1577-assets/index.html')
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..setBackgroundColor(const Color(0x00000000))
+          // ..runJavaScript('window.appEvent("resume")')
+          ..setNavigationDelegate(NavigationDelegate(
+            onProgress: (int progress) {},
+            onPageStarted: (String url) {},
+            onPageFinished: (String url) {},
+            onWebResourceError: (WebResourceError error) {},
+            onNavigationRequest: (NavigationRequest request) {
+              return NavigationDecision.navigate;
+            },
+          ))
+          ..addJavaScriptChannel('sendExploreUIEvent',
+              onMessageReceived: (JavaScriptMessage message) {
+            print(
+                "${message.message}::FLUTTER::WebViewController:requestString:  ::");
+          }),
+      ),
     );
   }
-}
-
-class ScreenArguments {
-  final String url;
-  final String appBarLink;
-  ScreenArguments(this.url, this.appBarLink);
 }
