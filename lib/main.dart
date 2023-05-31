@@ -45,8 +45,11 @@ class _MyHomePageState extends State<MyHomePage> {
   int progress = 0;
   int folderCounter = 0; // New variable to keep track of folder count
   int status = 9;
+  String filePath = '';
+  String htmlPath = ''; // Added variable to store HTML path
   // ...
 
+  // Downloading zip file
   void _downloadFiles() async {
     final baseDir = (await getTemporaryDirectory()).path;
     print(baseDir);
@@ -91,13 +94,21 @@ class _MyHomePageState extends State<MyHomePage> {
         receivePort.sendPort, 'downloadingId');
     receivePort.listen((message) {
       setState(() {
-        progress = message;
+        if (message is int) {
+          progress = message;
+        } else if (message is String) {
+          htmlPath = message;
+        }
       });
     });
     FlutterDownloader.registerCallback(downloadCallback);
     super.initState();
   }
 
+  static String path = '/data/user/0/com.example.poc/cache/folder/filename.zip';
+  static String unZipPath =
+      '/data/user/0/com.example.poc/cache/folder/unzipfile';
+  // unziping zip file and deleting zip file after unzip
   static downloadCallback(id, status, progress) async {
     SendPort? sendPort = IsolateNameServer.lookupPortByName('downloadingId');
     sendPort?.send(progress);
@@ -106,11 +117,11 @@ class _MyHomePageState extends State<MyHomePage> {
       print("1");
       // final savedDir = (await getTemporaryDirectory()).path;
       print("2");
-      const zipFilePath =
-          '/data/user/0/com.example.poc/cache/folder/filename.zip';
+      String zipFilePath = path;
+      // '/data/user/0/com.example.poc/cache/folder/filename.zip';
       print("3");
-      const unzipDirectory =
-          '/data/user/0/com.example.poc/cache/folder/unzipfile';
+      String unzipDirectory = unZipPath;
+      // '/data/user/0/com.example.poc/cache/folder/unzipfile';
 
       print("4");
 
@@ -127,6 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
             final outputFile = File(filePath);
             if (fileName.endsWith('.html')) {
               // Check if the file has .html extension
+              sendPort?.send(filePath); // Send HTML path through sendPort
               print('HTML path: $filePath');
             }
             outputFile.createSync(recursive: true);
@@ -172,16 +184,22 @@ class _MyHomePageState extends State<MyHomePage> {
               '$progress',
               style: Theme.of(context).textTheme.titleLarge,
             ),
+            Text(
+              'HTML Path: $htmlPath', // Display HTML path
+              style: const TextStyle(fontSize: 16),
+            ),
             IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ExtractArgumentsScreen()),
-                  );
-                },
-                icon: const Icon(
-                    Icons.account_box)) // Changed headlineMedium to headline6
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ExtractArgumentsScreen(path: htmlPath),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.html),
+            ),
           ],
         ),
       ),

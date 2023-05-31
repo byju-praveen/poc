@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class ExtractArgumentsScreen extends StatelessWidget {
-  const ExtractArgumentsScreen({super.key});
+  final String path;
+  const ExtractArgumentsScreen({super.key, required this.path});
 
   @override
   Widget build(BuildContext context) {
@@ -12,11 +13,10 @@ class ExtractArgumentsScreen extends StatelessWidget {
       ),
       body: WebViewWidget(
         controller: WebViewController()
-          ..loadFile(
-              'file:///data/user/0/com.example.poc/cache/folder/unzipfile/interaction-1577-assets/index.html')
+          ..loadFile(path)
           ..setJavaScriptMode(JavaScriptMode.unrestricted)
           ..setBackgroundColor(const Color(0x00000000))
-          // ..runJavaScript('window.appEvent("resume")')
+          ..runJavaScript('window.appEvent("resume")')
           ..setNavigationDelegate(NavigationDelegate(
             onProgress: (int progress) {},
             onPageStarted: (String url) {},
