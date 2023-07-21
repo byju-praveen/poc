@@ -40,7 +40,6 @@ dependencies:
   permission_handler: ^10.2.0
   archive: ^3.3.7
   flutter_archive: ^5.0.0
-  webview_flutter: ^4.2.0
   flutter_inappwebview: ^5.7.2+3
 
 dev_dependencies:
