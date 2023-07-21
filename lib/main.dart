@@ -27,10 +27,15 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'FlutterDownloader'),
+      home: InAppWebViewWidget(
+        path:
+            '/data/user/0/com.example.poc/cache/folder/unzipfile/interaction-1577-assets/index.html',
+      ),
     );
   }
 }
+
+// home: const MyHomePage(title: 'FlutterDownloader'),
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -193,8 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        ExtractArgumentsScreen(path: htmlPath),
+                    builder: (context) => InAppWebViewWidget(path: htmlPath),
                   ),
                 );
               },
