@@ -43,10 +43,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int progress = 0;
-  int folderCounter = 0; // New variable to keep track of folder count
+  int folderCounter = 0;
   int status = 9;
   String filePath = '';
-  String htmlPath = ''; // Added variable to store HTML path
+  String htmlPath = ''; 
   // ...
 
   // Downloading zip file
